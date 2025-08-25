@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gestión de Citas</title>
+
+  <!-- FullCalendar CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/main.min.css" rel="stylesheet" />
+
+  <!-- Estilos propios -->
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="wrapper">
+    <nav class="tabs">
+      <button class="tab-button active" data-tab="tab-calendario">Calendario</button>
+      <button class="tab-button" data-tab="tab-citas">Citas del día</button>
+      <div class="clock" id="clock" aria-live="polite"></div>
+    </nav>
+
+    <section id="tab-calendario" class="tab-content active">
+      <div class="calendar-shell">
+        <div id="calendar"></div>
+      </div>
+      <div class="acciones-inicio">
+        <button class="btn-primary" id="btn-hoy">Ir a hoy</button>
+        <button class="btn-secondary" id="btn-ver">Ver citas del día</button>
+      </div>
+    </section>
+
+    <section id="tab-citas" class="tab-content">
+      <header class="citas-header">
+        <h2>Citas del día</h2>
+        <div class="fecha-seleccionada">
+          <span id="selectedDateLabel">Selecciona un día en el calendario</span>
+        </div>
+
+        <div class="filtros-citas" aria-label="Filtrar por peluquero">
+          <label for="stylistSelect" class="sr-only">Peluquero</label>
+          <select id="stylistSelect" class="select" disabled>
+            <option>Cargando peluqueros…</option>
+          </select>
+        </div>
+         
+      </header>
+
+      <div id="lista-citas" class="lista-citas" role="list">
+        <!-- Aquí se insertan las tarjetas dinámicamente -->
+      </div>
+    </section>
+  </div>
+
+  <div id="toast" class="toast" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- FullCalendar JS -->
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+  <script src="app.js"></script>
+  <div id="modal-editar" class="modal">
+  <div class="modal-content">
+    <h2>✏️ Editar cita</h2>
+    <div class="form-group">
+      <label for="editNombre">Nombre del cliente</label>
+      <input type="text" id="editNombre" placeholder="Ej. Juan Pérez" />
+    </div>
+    <div class="form-group">
+      <label for="editTelefono">Teléfono</label>
+      <input type="text" id="editTelefono" placeholder="Ej. 600123456" />
+    </div>
+    <div class="modal-actions">
+      <button class="btn guardar" onclick="guardarEdicion()">Guardar cambios</button>
+      <button class="btn cancelar" onclick="cerrarModalEdicion()">Cancelar</button>
+    </div>
+  </div>
+</div>
+</body>
+</html>
+
+
+
+
+
+
+
+

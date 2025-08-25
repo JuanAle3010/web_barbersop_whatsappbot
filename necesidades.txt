@@ -1,0 +1,4 @@
+1- Quiero poder cancelar las citas con un boton por si alguien decide querer cancelarla (De momento no funciona correctamente)
+2- Separar datos de configuración Que peluqueros, horarios y duración de huecos se puedan cambiar desde un archivo o panel, sin tocar código. 
+3- Chatbot con el que hacer recordatorios a los clientes con cita para el día siguiente
+4- Ver como subir la página web para que la pueda usar alguien
