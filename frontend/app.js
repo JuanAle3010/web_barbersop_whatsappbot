@@ -12,6 +12,7 @@ let calendar = null;
 
 let citaEditando = null; // 👈 nuevo para edición
 
+
 // --- Inicio ---
 document.addEventListener("DOMContentLoaded", async () => {
   setupTabs();
@@ -247,16 +248,38 @@ function renderHuecos(fecha) {
     horaDiv.textContent = hora;
 
     if (existente) {
-      card.className = "slot ocupado";
-      const datos = document.createElement("div");
-      datos.textContent = `${existente.nombre} (${existente.telefono})`;
+  card.className = "slot ocupado";
+  const datos = document.createElement("div");
+  datos.textContent = `${existente.nombre} (${existente.telefono})`;
 
-      const btnEditar = document.createElement("button");
-      btnEditar.textContent = "✏️ Editar";
-      btnEditar.addEventListener("click", () => editarCita(existente));
+  const btnEditar = document.createElement("button");
+  btnEditar.textContent = "✏️ Editar";
+  btnEditar.addEventListener("click", () => editarCita(existente));
 
-      card.append(horaDiv, datos, btnEditar);
-    } else {
+  const btnCancelar = document.createElement("button");
+  btnCancelar.textContent = "❌ Cancelar";
+  btnCancelar.addEventListener("click", async () => {
+    if (confirm("¿Seguro que quieres cancelar esta cita?")) {
+      const res = await fetch(`/api/appointments/${existente.id}`, {
+        method: "DELETE"
+      });
+      if (res.status === 204) {
+        showToast("Cita cancelada");
+        await loadCitas();
+        renderHuecos(fecha);
+        if (calendar) {
+          calendar.refetchEvents();
+          calendar.rerenderDates();
+        }
+      } else {
+        showToast("Error al cancelar la cita");
+      }
+    }
+  });
+
+  card.append(horaDiv, datos, btnEditar, btnCancelar);
+}
+ else {
       card.className = "slot disponible";
       const btn = document.createElement("button");
       btn.textContent = `Reservar (${selectedStylist || "Peluquero"})`;
@@ -428,6 +451,20 @@ function setupCalendar() {
 
   calendar.render();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
