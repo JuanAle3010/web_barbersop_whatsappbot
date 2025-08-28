@@ -12,6 +12,16 @@ from pydantic import BaseModel, Field
 
 DATA_FILE = Path("citas.json")
 STYLISTS = ["Diego", "Jose Luís"]
+CONFIG_FILE = Path("config.json")
+
+def load_config() -> dict:
+    if not CONFIG_FILE.exists():
+        raise RuntimeError("Archivo de configuración no encontrado")
+    return json.loads(CONFIG_FILE.read_text(encoding="utf-8"))
+
+CONFIG = load_config()
+STYLISTS = CONFIG["stylists"]
+
 
 def load_data() -> List[dict]:
     if not DATA_FILE.exists():
@@ -52,6 +62,11 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"], allow_methods=["*"], allow_headers=["*"],
 )
+
+@app.get("/api/config")
+def get_config():
+    return CONFIG
+
 
 @app.get("/api/stylists", response_model=List[str])
 def get_stylists():

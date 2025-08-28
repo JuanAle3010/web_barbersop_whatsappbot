@@ -1,7 +1,7 @@
 // --- Config y estado ---
-const HORA_INICIO = "10:00";
-const HORA_FIN = "21:00";
-const INTERVALO_MIN = 20;
+let HORA_INICIO = "10:00";
+let HORA_FIN = "21:00";
+let INTERVALO_MIN = 20;
 
 let citas = [];
 let stylists = [];
@@ -14,10 +14,24 @@ let citaEditando = null; // 👈 nuevo para edición
 
 
 // --- Inicio ---
+async function loadConfig() {
+  try {
+    const res = await fetch("/api/config");
+    if (res.ok) {
+      const cfg = await res.json();
+      HORA_INICIO = cfg.hora_inicio;
+      HORA_FIN = cfg.hora_fin;
+      INTERVALO_MIN = cfg.intervalo_min;
+    }
+  } catch {
+    console.warn("No se pudo cargar la configuración");
+  }
+}
 document.addEventListener("DOMContentLoaded", async () => {
   setupTabs();
   startClock();
 
+  await loadConfig();
   await loadStylists();
   await loadCitas();
 
