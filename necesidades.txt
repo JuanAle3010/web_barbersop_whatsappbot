@@ -1,3 +1,4 @@
 1- Separar datos de configuración Que peluqueros, horarios y duración de huecos se puedan cambiar desde un archivo o panel, sin tocar código. (está hecho solo que si hace falta tocar el .json, de momento quiero dejarlo así)
-2- Chatbot con el que hacer recordatorios a los clientes con cita para el día siguiente
-3- Ver como subir la página web para que la pueda usar alguien
+2- Chatbot con el que hacer recordatorios a los clientes con cita para el día siguiente(Está hecho falta testeo y confirmación)
+3- Mejorar un poco la interfaz en ciertos aspectos(borrar botones week y list, hacer que al entrar a las citas los días se vean claros)
+4- Ver como subir la página web para que la pueda usar alguien

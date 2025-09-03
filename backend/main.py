@@ -1,23 +1,27 @@
-# backend/main.py
 import json
 import uuid
 import re
 from pathlib import Path
 from typing import List, Optional, Literal
+from datetime import datetime, timedelta
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
+import pywhatkit as kit  # 👈 para enviar WhatsApp
+
 DATA_FILE = Path("citas.json")
 STYLISTS = ["Diego", "Jose Luís"]
 CONFIG_FILE = Path("config.json")
+
 
 def load_config() -> dict:
     if not CONFIG_FILE.exists():
         raise RuntimeError("Archivo de configuración no encontrado")
     return json.loads(CONFIG_FILE.read_text(encoding="utf-8"))
+
 
 CONFIG = load_config()
 STYLISTS = CONFIG["stylists"]
@@ -28,14 +32,17 @@ def load_data() -> List[dict]:
         DATA_FILE.write_text("[]", encoding="utf-8")
     return json.loads(DATA_FILE.read_text(encoding="utf-8"))
 
+
 def save_data(citas: List[dict]) -> None:
     DATA_FILE.write_text(json.dumps(citas, ensure_ascii=False, indent=2), encoding="utf-8")
+
 
 def normalize_phone(raw_phone: str) -> str:
     digits = re.sub(r"\D", "", raw_phone)
     if not digits.startswith("34"):
         digits = "34" + digits
     return digits
+
 
 class AppointmentIn(BaseModel):
     nombre: str = Field(..., min_length=1)
@@ -44,9 +51,11 @@ class AppointmentIn(BaseModel):
     hora: str = Field(..., regex=r"^\d{2}:\d{2}$")
     peluquero: Optional[str] = None
 
+
 class Appointment(AppointmentIn):
     id: str
     estado: Literal["Pendiente", "Pagado"] = "Pendiente"
+
 
 class AppointmentUpdate(BaseModel):
     nombre: Optional[str] = None
@@ -56,12 +65,14 @@ class AppointmentUpdate(BaseModel):
     peluquero: Optional[str] = None
     estado: Optional[Literal["Pendiente", "Pagado"]] = None
 
+
 app = FastAPI(title="Calendario Profesional (Web MVP)")
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"], allow_methods=["*"], allow_headers=["*"],
 )
+
 
 @app.get("/api/config")
 def get_config():
@@ -71,6 +82,7 @@ def get_config():
 @app.get("/api/stylists", response_model=List[str])
 def get_stylists():
     return STYLISTS
+
 
 @app.get("/api/appointments", response_model=List[Appointment])
 def list_appointments(fecha: Optional[str] = None, peluquero: Optional[str] = None):
@@ -93,6 +105,7 @@ def list_appointments(fecha: Optional[str] = None, peluquero: Optional[str] = No
 
     citas.sort(key=lambda x: x.get("hora", "00:00"))
     return citas
+
 
 @app.post("/api/appointments", response_model=Appointment, status_code=201)
 def create_appointment(payload: AppointmentIn):
@@ -122,6 +135,7 @@ def create_appointment(payload: AppointmentIn):
     save_data(citas)
     return appt
 
+
 @app.patch("/api/appointments/{appt_id}", response_model=Appointment)
 def update_appointment(appt_id: str, payload: AppointmentUpdate):
     citas = load_data()
@@ -135,6 +149,7 @@ def update_appointment(appt_id: str, payload: AppointmentUpdate):
             return c
     raise HTTPException(404, "Cita no encontrada")
 
+
 @app.delete("/api/appointments/{appt_id}", status_code=204)
 def delete_appointment(appt_id: str):
     citas = load_data()
@@ -144,8 +159,39 @@ def delete_appointment(appt_id: str):
     save_data(new_citas)
     return
 
+
+# 🚀 Nuevo endpoint para enviar recordatorios de mañana
+@app.post("/api/enviar_recordatorios")
+def enviar_recordatorios():
+    citas = load_data()
+    manana = datetime.now().strftime("%Y-%m-%d")
+    enviados = []
+
+    for cita in citas:
+        if cita["fecha"] == manana:
+            telefono = normalize_phone(cita["telefono"])
+            mensaje = (
+                f"¡Hola {cita['nombre']}! ✂️ "
+                f"Te recordamos tu cita mañana {cita['fecha']} con {cita['peluquero']} a las {cita['hora']} "
+                f"en Peluquería Trigueros."
+            )
+            try:
+                kit.sendwhatmsg_instantly(
+                    f"+{telefono}",
+                    mensaje,
+                    wait_time=10,
+                    tab_close=True
+                )
+                enviados.append({"cliente": cita["nombre"], "telefono": telefono})
+            except Exception as e:
+                print(f"Error enviando a {telefono}: {e}")
+
+    return {"status": "ok", "enviados": enviados}
+
+
 # Servir frontend
 app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
+
 
 
 

@@ -26,7 +26,11 @@
       <div class="acciones-inicio">
         <button class="btn-primary" id="btn-hoy">Ir a hoy</button>
         <button class="btn-secondary" id="btn-ver">Ver citas del día</button>
+        <!-- NUEVO BOTÓN -->
+        <button class="btn-secondary" id="btnRecordatorios">Enviar recordatorios de mañana</button>
       </div>
+      <!-- Lugar para mostrar resultado de recordatorios -->
+      <div id="resultadoRecordatorios" style="margin-top:10px; font-weight:bold;"></div>
     </section>
 
     <section id="tab-citas" class="tab-content">
@@ -56,25 +60,57 @@
   <!-- FullCalendar JS -->
   <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
   <script src="app.js"></script>
+
+  <!-- Modal de edición -->
   <div id="modal-editar" class="modal">
-  <div class="modal-content">
-    <h2>✏️ Editar cita</h2>
-    <div class="form-group">
-      <label for="editNombre">Nombre del cliente</label>
-      <input type="text" id="editNombre" placeholder="Ej. Juan Pérez" />
-    </div>
-    <div class="form-group">
-      <label for="editTelefono">Teléfono</label>
-      <input type="text" id="editTelefono" placeholder="Ej. 600123456" />
-    </div>
-    <div class="modal-actions">
-      <button class="btn guardar" onclick="guardarEdicion()">Guardar cambios</button>
-      <button class="btn cancelar" onclick="cerrarModalEdicion()">Cancelar</button>
+    <div class="modal-content">
+      <h2>✏️ Editar cita</h2>
+      <div class="form-group">
+        <label for="editNombre">Nombre del cliente</label>
+        <input type="text" id="editNombre" placeholder="Ej. Juan Pérez" />
+      </div>
+      <div class="form-group">
+        <label for="editTelefono">Teléfono</label>
+        <input type="text" id="editTelefono" placeholder="Ej. 600123456" />
+      </div>
+      <div class="modal-actions">
+        <button class="btn guardar" onclick="guardarEdicion()">Guardar cambios</button>
+        <button class="btn cancelar" onclick="cerrarModalEdicion()">Cancelar</button>
+      </div>
     </div>
   </div>
-</div>
+
+  <!-- Script para enviar recordatorios (con botón seguro) -->
+  <script>
+    const btnRecordatorios = document.getElementById("btnRecordatorios");
+    const resultadoDiv = document.getElementById("resultadoRecordatorios");
+
+    btnRecordatorios.addEventListener("click", async () => {
+        btnRecordatorios.disabled = true;
+        resultadoDiv.innerHTML = "Enviando recordatorios...";
+
+        try {
+            const response = await fetch("/api/enviar_recordatorios", { method: "POST" });
+            if (!response.ok) throw new Error("Error al enviar recordatorios");
+
+            const data = await response.json();
+            if (data.enviados.length === 0) {
+                resultadoDiv.innerHTML = "No hay citas para mañana.";
+            } else {
+                resultadoDiv.innerHTML = "Recordatorios enviados a:<br>" +
+                    data.enviados.map(e => `${e.cliente} (${e.telefono})`).join("<br>");
+            }
+        } catch (err) {
+            resultadoDiv.innerHTML = "Ocurrió un error: " + err.message;
+        } finally {
+            btnRecordatorios.disabled = false;
+        }
+    });
+  </script>
 </body>
 </html>
+
+
 
 
 

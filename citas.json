@@ -25,5 +25,32 @@
     "peluquero": "Diego",
     "id": "392cc304-5939-489d-9a7c-2dcbfedc40bb",
     "estado": "Pendiente"
+  },
+  {
+    "nombre": "Juan Alejandro",
+    "telefono": "34633396504",
+    "fecha": "2025-08-29",
+    "hora": "10:00",
+    "peluquero": "Diego",
+    "id": "2d92b64d-3a1d-480c-b51b-1648d629e9b7",
+    "estado": "Pendiente"
+  },
+  {
+    "nombre": "JA",
+    "telefono": "34633396504",
+    "fecha": "2025-08-29",
+    "hora": "10:00",
+    "peluquero": "Jose Luís",
+    "id": "2d0fe579-227a-4b5c-bc93-49e263b0e0aa",
+    "estado": "Pendiente"
+  },
+  {
+    "nombre": "JA",
+    "telefono": "34633396504",
+    "fecha": "2025-08-29",
+    "hora": "10:20",
+    "peluquero": "Diego",
+    "id": "c1510b50-18d9-40a5-92bb-8266d086a89d",
+    "estado": "Pendiente"
   }
 ]
